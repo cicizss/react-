@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <script type="text/javascript" src="browser.min.js"></script>
+    <script type="text/javascript" src="react.js"></script>
+    <script type="text/javascript" src="react-dom.js"></script>
+    <script type="text/javascript" src="jquery-3.0.0.min.js"></script>
+    <style type="text/css">
+        #root{width:1170px;
+            margin:0 auto;}
+        *{padding:0;
+            margin:0;
+            text-decoration: none;}
+        .wraper{
+            display: flex;
+        }
+    </style>
+</head>
+<body>
+<div id="root" style="width:1170px;margin:68px auto">
+</div>
+<script type="text/babel">
+    class UserGist extends React.Component{
+
+        render(){
+                return(
+                    <div className='wraper' style={{width:500+"px",margin:"0 auto"}}>
+                        <span >书名：{this.props.data.bookname}</span>
+                        <img src={this.props.data.image} title="hello" />
+                        <a  href={this.props.data.mobile_link}>查看详情</a>
+                    </div>
+            )
+
+    }
+    }
+    var RollPage=React.createClass({
+        getInitialState:function(){
+            return {
+                data:{
+                    bookname:"",
+                    image:"",
+                    mobilie_link:"",
+                },
+                source:"https://api.douban.com/v2/book/1220562" ,
+            }
+        },
+        componentDidMount:function(){
+            $.ajax(
+                {
+                    type:"get",
+                    url:this.state.source,
+                    dataType:"jsonp",
+                    success:function(result){
+                        var book=result;
+                        this.setState({
+                            data:{
+                                bookname:book.title,
+                                image:book.image,
+                                mobile_link:book.alt,
+                            }
+                        });
+                        //  alert(this.state.data.bookname)
+                    }.bind(this)
+                });
+        },
+        clickDown:function(){
+            let o=this.state.source;
+            let s=parseInt(o.match(/(?=\/)?[\d]*$/).join(''));
+            console.log(o.match(/(?=\/)?[\d]*$/));
+            s++;
+            this.setState({
+                source: o.replace(/(?=\/)?[\d]*$/,++s),
+            })
+            $.ajax(
+                {
+                    type:"get",
+                    url:this.state.source,
+                    dataType:"jsonp",
+                    success:function(result){
+                        var book=result;
+                        this.setState({
+                            data:{
+                                bookname:book.title,
+                                image:book.image,
+                                mobile_link:book.alt,
+                            }
+                        });
+                    }.bind(this)
+                });
+        },
+        buttonStyle:{
+            color:"#fff",
+            fontSize:20+"px",
+            padding:"10px 20px",
+            backgroundColor:"#000",
+            cursor:"pointer",
+            border:'none',
+            display:'block',
+            margin:"10px",
+        },
+        clickUp:function(){
+            let o=this.state.source;
+            let s=parseInt(o.match(/(?=\/)?[\d]*$/).join(''));
+            this.setState({
+                source: o.replace(/(?=\/)?[\d]*$/,--s),
+            })
+            $.ajax(
+                {
+                    type:"get",
+                    url:this.state.source,
+                    dataType:"jsonp",
+                    success:function(result){
+                        var book=result;
+                        this.setState({
+                            data:{
+                                bookname:book.title,
+                                image:book.image,
+                                mobile_link:book.alt,
+                            }
+                        });
+                    }.bind(this)
+                });
+        },
+        render:function(){
+            return(
+                    <div style={{textAlign:"center"}}>
+                        <UserGist data={this.state.data}/>
+                        <button onClick={this.clickUp} style={this.buttonStyle}>上一本</button>
+                        <button onClick={this.clickDown} style={this.buttonStyle} >下一本</button>
+                    </div>
+            )
+        }
+    })
+    ReactDOM.render(
+            <RollPage />,
+        document.getElementById("root")
+    )
+</script>
+</body>
+</html>
